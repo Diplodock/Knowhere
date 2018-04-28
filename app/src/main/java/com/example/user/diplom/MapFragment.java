@@ -89,14 +89,18 @@ public class MapFragment extends android.support.v4.app.Fragment {
                     return;
                 }
                 mMap.setMyLocationEnabled(true);
+                getDeviceLocation();
 
                 // For dropping a marker at a point on the Map
                 LatLng sydney = new LatLng(-34, 151);
                 googleMap.addMarker(new MarkerOptions().position(sydney).title("Marker Title").snippet("Marker Description"));
 
+
+
                 // For zooming automatically to the location of the marker
-                CameraPosition cameraPosition = new CameraPosition.Builder().target(sydney).zoom(12).build();
-                googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+                //CameraPosition cameraPosition = new CameraPosition.Builder().target(sydney).zoom(12).build();
+                //googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+
 
             }
         });
@@ -177,7 +181,7 @@ public class MapFragment extends android.support.v4.app.Fragment {
     private void getDeviceLocation(){
         Log.d(TAG, "getDeviceLocation: getting the devices current location");
 
-        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity().getApplicationContext());
+        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getContext());
 
         try{
             if(mLocationPermissionsGranted){
@@ -207,7 +211,7 @@ public class MapFragment extends android.support.v4.app.Fragment {
 
     private void moveCamera(LatLng latLng, float zoom){
         Log.d(TAG, "moveCamera: moving the camera to: lat: " + latLng.latitude + ", lng: " + latLng.longitude );
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
+        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
     }
 
 }
