@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class ExploreFragment extends android.support.v4.app.Fragment {
+public class ExploreFragment extends Fragment {
 
 
     public ExploreFragment() {
