@@ -4,16 +4,23 @@ package com.example.user.diplom;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -35,6 +42,9 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+
+import java.util.List;
+import java.util.Locale;
 
 import static android.content.ContentValues.TAG;
 
@@ -96,15 +106,35 @@ public class MapFragment extends Fragment{
 
                 googleMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
                     @Override
-                    public void onInfoWindowClick(Marker marker) {
+                    public void onInfoWindowClick(final Marker marker) {
                         Log.d(TAG, "onInfoWindowClick: ");
                         StreetViewPanoramaOptions options = new StreetViewPanoramaOptions();
                         options.position(marker.getPosition());
                         mStreetViewPanoramaView = new StreetViewPanoramaView(getContext(), options);
                         ViewGroup vg = (ViewGroup) rootView;
-                        vg.addView(mStreetViewPanoramaView,
-                                new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+                        final Button bt = new Button(getContext());
+                        bt.setText("OK");;
+                        bt.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                mStreetViewPanoramaView.animate().translationY(50000).setDuration(3000);
+                                ((ViewGroup) rootView).removeView(bt);
+                                Handler handler = new Handler();
+                                Runnable runnable = new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        ((ViewGroup) rootView).removeView(mStreetViewPanoramaView);
+                                    }
+                                };
+                                handler.postDelayed(runnable, 1500);
+                            }
+                        });
+                        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                        params.gravity = Gravity.END | Gravity.BOTTOM;
+                        vg.setLayoutParams(params);
+                        vg.addView(mStreetViewPanoramaView);
                         mStreetViewPanoramaView.onCreate(savedInstanceState);
+                        vg.addView(bt, params);
                     }
                 });
 
@@ -131,7 +161,7 @@ public class MapFragment extends Fragment{
 
                         // Setting the title for the marker.
                         // This will be displayed on taping the marker
-                        markerOptions.title(latLng.latitude + " : " + latLng.longitude);
+                        markerOptions.title(getAddress(latLng));
 
                         // Clears the previously touched position
                         googleMap.clear();
@@ -260,5 +290,26 @@ public class MapFragment extends Fragment{
     private void moveCamera(LatLng latLng, float zoom) {
         Log.d(TAG, "moveCamera: moving the camera to: lat: " + latLng.latitude + ", lng: " + latLng.longitude);
         googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
+    }
+
+    private String getAddress(LatLng latLng){
+        Geocoder geocoder;
+        List<Address> addresses;
+        String fullAddress = null;
+        geocoder = new Geocoder(getContext(), Locale.getDefault());
+        try {
+            addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
+
+            String address = addresses.get(0).getAddressLine(0);
+            String area = addresses.get(0).getLocality();
+            String city = addresses.get(0).getAdminArea();
+            String country = addresses.get(0).getCountryName();
+            String postalcode = addresses.get(0).getPostalCode();
+
+            fullAddress = address+", "+area+" , \n"+city+", "+country+", "+postalcode;
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return fullAddress;
     }
 }
