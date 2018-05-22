@@ -3,10 +3,18 @@ package com.example.user.diplom;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.LoaderManager.LoaderCallbacks;
+import android.app.LoaderManager;
+import android.content.ContentValues;
+import android.content.CursorLoader;
+import android.content.Loader;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.os.Handler;
@@ -16,6 +24,7 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -52,7 +61,7 @@ import static android.content.ContentValues.TAG;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class MapFragment extends Fragment{
+public class MapFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     MapView mMapView;
     private GoogleMap googleMap;
@@ -78,6 +87,7 @@ public class MapFragment extends Fragment{
     private LatLng sydney = new LatLng(-33.8767308, 151.2097581);
 
 
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              final Bundle savedInstanceState) {
@@ -88,7 +98,7 @@ public class MapFragment extends Fragment{
         getLocationPermission();
 
 
-        mMapView.onResume(); // needed to get the map to display immediately
+        mMapView.onResume();
 
         try {
             MapsInitializer.initialize(getActivity().getApplicationContext());
@@ -102,7 +112,9 @@ public class MapFragment extends Fragment{
             public void onMapReady(GoogleMap mMap) {
 
 
+
                 googleMap = mMap;
+
 
                 googleMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
                     @Override
@@ -147,8 +159,8 @@ public class MapFragment extends Fragment{
                 mMap.setMyLocationEnabled(true);
                 getDeviceLocation();
 
+
                 // For dropping a marker at a point on the Map
-                googleMap.addMarker(new MarkerOptions().position(sydney).title("Marker Title").snippet("Marker Description"));
 
                 googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
                     @Override
@@ -250,7 +262,6 @@ public class MapFragment extends Fragment{
                     }
                     Log.d(TAG, "onRequestPermissionsResult: permission granted");
                     mLocationPermissionsGranted = true;
-                    //initialize our map
                 }
             }
         }
@@ -312,4 +323,3 @@ public class MapFragment extends Fragment{
         }
         return fullAddress;
     }
-}
