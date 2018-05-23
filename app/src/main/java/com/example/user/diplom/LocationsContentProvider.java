@@ -16,7 +16,7 @@ import android.net.Uri;
 /** A custom Content Provider to do the database operations */
 public class LocationsContentProvider extends ContentProvider{
 
-    public static final String PROVIDER_NAME = "in.wptrafficanalyzer.locationmarkersqlite.locations";
+    public static final String PROVIDER_NAME = "com.example.user.diplom.locations";
 
     /** A uri to do operations on locations table. A content provider is identified by its uri */
     public static final Uri CONTENT_URI = Uri.parse("content://" + PROVIDER_NAME + "/locations" );

@@ -6,12 +6,18 @@ import android.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.TextView;
+
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
  */
 public class ExploreFragment extends Fragment {
 
+    private ListView listView;
 
     public ExploreFragment() {
         // Required empty public constructor
@@ -21,8 +27,20 @@ public class ExploreFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        View v = inflater.inflate(R.layout.fragment_explore, container, false);
+        listView = v.findViewById(R.id.listView);
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_explore, container, false);
+
+        DatabaseAccess databaseAccess = DatabaseAccess.getInstance(getActivity().getApplicationContext());
+        databaseAccess.open();
+        List<String> quotes = databaseAccess.getQuotes();
+        databaseAccess.close();
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity().getApplicationContext(), android.R.layout.simple_list_item_1, quotes);
+        listView.setAdapter(adapter);
+
+
+        return v;
     }
 
 }

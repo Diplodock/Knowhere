@@ -5,9 +5,10 @@
     tools:context="com.example.user.diplom.ExploreFragment">
 
     <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <ListView
+        android:id="@+id/listView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="@string/explore" />
+        android:layout_gravity="center" />
 
 </FrameLayout>
