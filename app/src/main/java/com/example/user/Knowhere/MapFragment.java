@@ -2,12 +2,17 @@ package com.example.user.Knowhere;
 
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Loader;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.Point;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -26,10 +31,23 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.location.places.GeoDataApi;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.PlaceDetectionApi;
+import com.google.android.gms.location.places.PlaceLikelihood;
+import com.google.android.gms.location.places.PlaceLikelihoodBuffer;
+import com.google.android.gms.location.places.PlacePhotoMetadata;
+import com.google.android.gms.location.places.PlacePhotoMetadataBuffer;
+import com.google.android.gms.location.places.PlacePhotoMetadataResult;
 import com.google.android.gms.location.places.Places;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
@@ -55,8 +73,9 @@ import java.util.Locale;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class MapFragment extends Fragment implements LoaderCallbacks<Cursor>, OnConnectionFailedListener  {
+public class MapFragment extends Fragment implements LoaderCallbacks<Cursor>, OnConnectionFailedListener {
 
+    private MapFragment mapFragment;
     MapView mMapView;
     private GoogleMap googleMap;
     private GoogleApiClient mGoogleApiClient;
@@ -84,18 +103,13 @@ public class MapFragment extends Fragment implements LoaderCallbacks<Cursor>, On
     @Override
     public void onStop() {
         super.onStop();
-        mGoogleApiClient.disconnect();
+        mMapView.onStop();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              final Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.fragment_map, container, false);
-        mGoogleApiClient = new GoogleApiClient
-                .Builder(getActivity().getApplicationContext())
-                .addApi(Places.GEO_DATA_API)
-                .addApi(Places.PLACE_DETECTION_API)
-                .build();
 
         mMapView = (MapView) rootView.findViewById(R.id.mapView);
         mMapView.onCreate(savedInstanceState);
@@ -104,6 +118,12 @@ public class MapFragment extends Fragment implements LoaderCallbacks<Cursor>, On
 
         mMapView.onResume();
         getLoaderManager().initLoader(0, null, this);
+
+        mGoogleApiClient = new GoogleApiClient
+                .Builder(getActivity().getApplicationContext())
+                .addApi(Places.GEO_DATA_API)
+                .addApi(Places.PLACE_DETECTION_API)
+                .build();
 
 
         try {
@@ -121,15 +141,19 @@ public class MapFragment extends Fragment implements LoaderCallbacks<Cursor>, On
                 googleMap = mMap;
 
 
+
+
+
+
                 googleMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
                     @Override
                     public void onInfoWindowClick(final Marker marker) {
                         Log.d(TAG, "onInfoWindowClick: ");
                         StreetViewPanoramaOptions options = new StreetViewPanoramaOptions();
                         options.position(marker.getPosition());
-                        mStreetViewPanoramaView = new StreetViewPanoramaView(getContext(), options);
+                        mStreetViewPanoramaView = new StreetViewPanoramaView(getActivity().getApplicationContext(), options);
                         ViewGroup vg = (ViewGroup) rootView;
-                        final Button btok = new Button(getContext());
+                        final Button btok = new Button(getActivity().getApplicationContext());
                         btok.setText("HIDE");
                         ;
                         btok.setOnClickListener(new View.OnClickListener() {
@@ -175,10 +199,10 @@ public class MapFragment extends Fragment implements LoaderCallbacks<Cursor>, On
                         Log.d(TAG, "onInfoWindowClick: ");
                         StreetViewPanoramaOptions options = new StreetViewPanoramaOptions();
                         options.position(point);
-                        mStreetViewPanoramaView = new StreetViewPanoramaView(getContext(), options);
+                        mStreetViewPanoramaView = new StreetViewPanoramaView(getActivity().getApplicationContext(), options);
                         ViewGroup vg = (ViewGroup) rootView;
-                        final Button btok = new Button(getContext());
-                        final Button btadd = new Button(getContext());
+                        final Button btok = new Button(getActivity().getApplicationContext());
+                        final Button btadd = new Button(getActivity().getApplicationContext());
                         btok.setText("HIDE");
                         btadd.setText("ADD TO BASE");
                         ;
@@ -223,7 +247,7 @@ public class MapFragment extends Fragment implements LoaderCallbacks<Cursor>, On
                                         contentValues.put(LocationsDB.FIELD_ZOOM, googleMap.getCameraPosition().zoom);
 
                                         //Setting address in ContentValues
-                                        contentValues.put(LocationsDB.FIELD_ADDRESS, getAddress(point));
+                                        contentValues.put(LocationsDB.FIELD_ADDRESS, getFormattedAddress(point));
 
                                         // Creating an instance of LocationInsertTask
                                         LocationInsertTask insertTask = new LocationInsertTask();
@@ -231,7 +255,7 @@ public class MapFragment extends Fragment implements LoaderCallbacks<Cursor>, On
                                         // Storing the latitude, longitude and zoom level to SQLite database
                                         insertTask.execute(contentValues);
 
-                                        Toast.makeText(getContext(), "Marker is added to the Map", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(getActivity().getApplicationContext(), "Marker is added to the Map", Toast.LENGTH_SHORT).show();
                                         ((ViewGroup) rootView).removeView(mStreetViewPanoramaView);
                                     }
                                 };
@@ -251,10 +275,9 @@ public class MapFragment extends Fragment implements LoaderCallbacks<Cursor>, On
                     }
                 });
 
-
-
             }
         });
+
 
         return rootView;
     }
@@ -286,7 +309,6 @@ public class MapFragment extends Fragment implements LoaderCallbacks<Cursor>, On
     @Override
     public void onLowMemory() {
         super.onLowMemory();
-        mMapView.onLowMemory();
     }
 
 
@@ -337,7 +359,7 @@ public class MapFragment extends Fragment implements LoaderCallbacks<Cursor>, On
     private void getDeviceLocation() {
         Log.d(TAG, "getDeviceLocation: getting the devices current location");
 
-        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getContext());
+        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity().getApplicationContext());
 
         try {
             if (mLocationPermissionsGranted) {
@@ -374,7 +396,7 @@ public class MapFragment extends Fragment implements LoaderCallbacks<Cursor>, On
         Geocoder geocoder;
         List<Address> addresses;
         String fullAddress = null;
-        geocoder = new Geocoder(getContext(), Locale.getDefault());
+        geocoder = new Geocoder(getActivity().getApplicationContext(), Locale.forLanguageTag("RU"));
         try {
             addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
 
@@ -391,12 +413,24 @@ public class MapFragment extends Fragment implements LoaderCallbacks<Cursor>, On
         return fullAddress;
     }
 
+    private String getFormattedAddress(LatLng latLng) {
+        Geocoder geocoder;
+        List<Address> addresses;
+        String fullAddress = null;
+        geocoder = new Geocoder(getActivity().getApplicationContext(), Locale.forLanguageTag("RU"));
+        try {
+            addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
 
+            String address = addresses.get(0).getAddressLine(0);
 
+            fullAddress = address;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return fullAddress;
+    }
 
-
-
-    private void drawMarker(LatLng point){
+    private void drawMarker(LatLng point) {
         // Creating an instance of MarkerOptions
         MarkerOptions markerOptions = new MarkerOptions();
 
@@ -404,11 +438,11 @@ public class MapFragment extends Fragment implements LoaderCallbacks<Cursor>, On
         markerOptions.position(point);
 
 
-        markerOptions.title(getAddress(point));
+        markerOptions.title(getFormattedAddress(point));
+
 
         // Adding marker on the Google Map
         googleMap.addMarker(markerOptions);
-
 
 
 
@@ -419,7 +453,7 @@ public class MapFragment extends Fragment implements LoaderCallbacks<Cursor>, On
 
     }
 
-    private class LocationInsertTask extends AsyncTask<ContentValues, Void, Void>{
+    private class LocationInsertTask extends AsyncTask<ContentValues, Void, Void> {
         @Override
         protected Void doInBackground(ContentValues... contentValues) {
 
@@ -429,7 +463,7 @@ public class MapFragment extends Fragment implements LoaderCallbacks<Cursor>, On
         }
     }
 
-    private class LocationDeleteTask extends AsyncTask<Void, Void, Void>{
+    private class LocationDeleteTask extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... params) {
 
@@ -454,9 +488,9 @@ public class MapFragment extends Fragment implements LoaderCallbacks<Cursor>, On
     public void onLoadFinished(Loader<Cursor> arg0,
                                Cursor arg1) {
         int locationCount = 0;
-        double lat=0;
-        double lng=0;
-        float zoom=0;
+        double lat = 0;
+        double lng = 0;
+        float zoom = 0;
 
         // Number of locations available in the SQLite database table
         locationCount = arg1.getCount();
@@ -464,7 +498,7 @@ public class MapFragment extends Fragment implements LoaderCallbacks<Cursor>, On
         // Move the current record pointer to the first row of the table
         arg1.moveToFirst();
 
-        for(int i=0;i<locationCount;i++){
+        for (int i = 0; i < locationCount; i++) {
 
             // Get the latitude
             lat = arg1.getDouble(arg1.getColumnIndex(LocationsDB.FIELD_LAT));
@@ -485,9 +519,9 @@ public class MapFragment extends Fragment implements LoaderCallbacks<Cursor>, On
             arg1.moveToNext();
         }
 
-        if(locationCount>0){
+        if (locationCount > 0) {
             // Moving CameraPosition to last clicked position
-            googleMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(lat,lng)));
+            googleMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(lat, lng)));
 
             // Setting the zoom level in the map on last position  is clicked
             googleMap.animateCamera(CameraUpdateFactory.zoomTo(zoom));
@@ -498,5 +532,24 @@ public class MapFragment extends Fragment implements LoaderCallbacks<Cursor>, On
     public void onLoaderReset(Loader<Cursor> arg0) {
         // TODO Auto-generated method stub
     }
-}
 
+    public Object getPhotoFromPlaceId(Marker marker){
+        PlacePhotoMetadataBuffer photoMetadataBuffer = null;
+        // Get a PlacePhotoMetadataResult containing metadata for the first 10 photos.
+        PlacePhotoMetadataResult result = Places.GeoDataApi
+                .getPlacePhotos(mGoogleApiClient, marker.getId()).await();
+// Get a PhotoMetadataBuffer instance containing a list of photos (PhotoMetadata).
+        if (result != null && result.getStatus().isSuccess()) {
+            photoMetadataBuffer = result.getPhotoMetadata();
+        }
+        // Get the first photo in the list.
+        PlacePhotoMetadata photo = photoMetadataBuffer.get(0);
+// Get a full-size bitmap for the photo.
+        Bitmap image = photo.getPhoto(mGoogleApiClient).await()
+                .getBitmap();
+// Get the attribution text.
+        CharSequence attribution = photo.getAttributions();
+        return image;
+    }
+
+}

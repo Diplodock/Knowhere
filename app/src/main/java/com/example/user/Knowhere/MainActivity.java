@@ -42,15 +42,15 @@ public class MainActivity extends AppCompatActivity {
 
                 switch (item.getItemId()) {
                     case R.id.nav_map:
-                        setFragment(mapFragment);
+                        displayFragmentMap();
                         return true;
 
                     case R.id.nav_explore:
-                        setFragment(exploreFragment);
+                        displayFragmentExplore();
                         return true;
 
                     case R.id.nav_profile:
-                        setFragment(aboutFragment);
+                        displayFragmentAbout();
                         return true;
 
                     default:
@@ -65,5 +65,50 @@ public class MainActivity extends AppCompatActivity {
         FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.main_frame, fragment);
         fragmentTransaction.commit();
+    }
+
+    protected void displayFragmentMap() {
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        if (mapFragment.isAdded()) { // if the fragment is already in container
+            ft.show(mapFragment);
+        } else { // fragment needs to be added to frame container
+            ft.add(R.id.main_frame, mapFragment, "A");
+        }
+        // Hide fragment B
+        if (exploreFragment.isAdded()) { ft.hide(exploreFragment); }
+        // Hide fragment C
+        if (aboutFragment.isAdded()) { ft.hide(aboutFragment); }
+        // Commit changes
+        ft.commit();
+    }
+
+    protected void displayFragmentExplore() {
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        if (exploreFragment.isAdded()) { // if the fragment is already in container
+            ft.show(exploreFragment);
+        } else { // fragment needs to be added to frame container
+            ft.add(R.id.main_frame, exploreFragment, "A");
+        }
+        // Hide fragment B
+        if (mapFragment.isAdded()) { ft.hide(mapFragment); }
+        // Hide fragment C
+        if (aboutFragment.isAdded()) { ft.hide(aboutFragment); }
+        // Commit changes
+        ft.commit();
+    }
+
+    protected void displayFragmentAbout() {
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        if (aboutFragment.isAdded()) { // if the fragment is already in container
+            ft.show(aboutFragment);
+        } else { // fragment needs to be added to frame container
+            ft.add(R.id.main_frame, aboutFragment, "A");
+        }
+        // Hide fragment B
+        if (mapFragment.isAdded()) { ft.hide(mapFragment); }
+        // Hide fragment C
+        if (exploreFragment.isAdded()) { ft.hide(exploreFragment); }
+        // Commit changes
+        ft.commit();
     }
 }

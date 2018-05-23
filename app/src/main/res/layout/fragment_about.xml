@@ -28,22 +28,29 @@
             android:scaleType="fitStart"
             android:scaleX="0.8"
             android:scaleY="0.8"
-            android:src="@drawable/aboutpicture" />
+            android:src="@drawable/appicon" />
 
         <TextView
             android:id="@+id/textView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_margin="15dp"
             android:text="Knowhere 0.0.1"
+            android:textStyle="bold"
             android:textAppearance="@style/TextAppearance.AppCompat.Display2" />
 
-        <Button
+        <android.support.v7.widget.AppCompatButton
             android:id="@+id/btbdclear"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@color/colorRed"
+            android:background="@color/cast_libraries_material_featurehighlight_outer_highlight_default_color"
+            android:elevation="0dp"
+            android:padding="15dp"
             android:text="CLEAR DATABASE"
-            android:textSize="18sp" />
+            android:textAppearance="@style/TextAppearance.AppCompat.Display2"
+            android:textColor="@color/colorWhite"
+            android:textSize="28sp"
+            android:theme="@style/AppTheme" />
 
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>

@@ -16,7 +16,6 @@ import static com.example.user.Knowhere.LocationsDB.DBNAME;
 
 
 public class AboutFragment extends Fragment {
-    private Button button;
 
     public AboutFragment() {
 
@@ -27,7 +26,7 @@ public class AboutFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_about, container, false);
-        button = v.findViewById(R.id.btbdclear);
+        Button button = v.findViewById(R.id.btbdclear);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
