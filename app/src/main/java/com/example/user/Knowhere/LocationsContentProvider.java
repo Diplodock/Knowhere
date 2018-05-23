@@ -1,4 +1,4 @@
-package com.example.user.diplom;
+package com.example.user.Knowhere;
 
 /**
  * Created by User on 022 22.05.18.
@@ -16,7 +16,7 @@ import android.net.Uri;
 /** A custom Content Provider to do the database operations */
 public class LocationsContentProvider extends ContentProvider{
 
-    public static final String PROVIDER_NAME = "com.example.user.diplom.locations";
+    public static final String PROVIDER_NAME = "com.example.user.Knowhere.locations";
 
     /** A uri to do operations on locations table. A content provider is identified by its uri */
     public static final Uri CONTENT_URI = Uri.parse("content://" + PROVIDER_NAME + "/locations" );

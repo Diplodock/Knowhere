@@ -1,4 +1,4 @@
-package com.example.user.diplom;
+package com.example.user.Knowhere;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

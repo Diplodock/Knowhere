@@ -1,4 +1,4 @@
-package com.example.user.diplom;
+package com.example.user.Knowhere;
 
 /**
  * Created by User on 022 22.05.18.

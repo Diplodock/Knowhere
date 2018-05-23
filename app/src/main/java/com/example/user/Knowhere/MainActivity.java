@@ -1,22 +1,13 @@
-package com.example.user.diplom;
+package com.example.user.Knowhere;
 
-import android.*;
-import android.Manifest;
-import android.content.pm.PackageManager;
-import android.location.Location;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
-import android.support.v4.app.ActivityCompat;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
-
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnSuccessListener;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -26,7 +17,7 @@ public class MainActivity extends AppCompatActivity {
 
     private MapFragment mapFragment;
     private ExploreFragment exploreFragment;
-    private ProfileFragment profileFragment;
+    private AboutFragment aboutFragment;
 
 
     @Override
@@ -40,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
 
         mapFragment = new MapFragment();
         exploreFragment = new ExploreFragment();
-        profileFragment = new ProfileFragment();
+        aboutFragment = new AboutFragment();
 
         setFragment(mapFragment);
 
@@ -59,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
                         return true;
 
                     case R.id.nav_profile:
-                        setFragment(profileFragment);
+                        setFragment(aboutFragment);
                         return true;
 
                     default:
