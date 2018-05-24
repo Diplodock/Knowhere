@@ -4,6 +4,7 @@ package com.example.user.Knowhere;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.LoaderManager.LoaderCallbacks;
+import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.CursorLoader;
@@ -40,6 +41,7 @@ import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.location.places.GeoDataApi;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.PlaceDetectionApi;
+import com.google.android.gms.location.places.PlaceFilter;
 import com.google.android.gms.location.places.PlaceLikelihood;
 import com.google.android.gms.location.places.PlaceLikelihoodBuffer;
 import com.google.android.gms.location.places.PlacePhotoMetadata;
@@ -47,6 +49,8 @@ import com.google.android.gms.location.places.PlacePhotoMetadataBuffer;
 import com.google.android.gms.location.places.PlacePhotoMetadataResult;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -66,6 +70,14 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.List;
 import java.util.Locale;
 
@@ -79,6 +91,8 @@ public class MapFragment extends Fragment implements LoaderCallbacks<Cursor>, On
     MapView mMapView;
     private GoogleMap googleMap;
     private GoogleApiClient mGoogleApiClient;
+    Place place;
+    String s;
 
 
     public MapFragment() {
@@ -139,10 +153,6 @@ public class MapFragment extends Fragment implements LoaderCallbacks<Cursor>, On
 
 
                 googleMap = mMap;
-
-
-
-
 
 
                 googleMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
@@ -298,12 +308,14 @@ public class MapFragment extends Fragment implements LoaderCallbacks<Cursor>, On
     public void onPause() {
         super.onPause();
         mMapView.onPause();
+
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         mMapView.onDestroy();
+        mGoogleApiClient.disconnect();
     }
 
     @Override
@@ -392,7 +404,7 @@ public class MapFragment extends Fragment implements LoaderCallbacks<Cursor>, On
         googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
     }
 
-    private String getAddress(LatLng latLng) {
+    protected String getAddress(LatLng latLng) {
         Geocoder geocoder;
         List<Address> addresses;
         String fullAddress = null;
@@ -413,7 +425,7 @@ public class MapFragment extends Fragment implements LoaderCallbacks<Cursor>, On
         return fullAddress;
     }
 
-    private String getFormattedAddress(LatLng latLng) {
+    protected String getFormattedAddress(LatLng latLng) {
         Geocoder geocoder;
         List<Address> addresses;
         String fullAddress = null;
@@ -430,6 +442,7 @@ public class MapFragment extends Fragment implements LoaderCallbacks<Cursor>, On
         return fullAddress;
     }
 
+
     private void drawMarker(LatLng point) {
         // Creating an instance of MarkerOptions
         MarkerOptions markerOptions = new MarkerOptions();
@@ -437,13 +450,11 @@ public class MapFragment extends Fragment implements LoaderCallbacks<Cursor>, On
         // Setting latitude and longitude for the marker
         markerOptions.position(point);
 
-
         markerOptions.title(getFormattedAddress(point));
-
+        
 
         // Adding marker on the Google Map
         googleMap.addMarker(markerOptions);
-
 
 
     }
@@ -533,23 +544,27 @@ public class MapFragment extends Fragment implements LoaderCallbacks<Cursor>, On
         // TODO Auto-generated method stub
     }
 
-    public Object getPhotoFromPlaceId(Marker marker){
-        PlacePhotoMetadataBuffer photoMetadataBuffer = null;
-        // Get a PlacePhotoMetadataResult containing metadata for the first 10 photos.
-        PlacePhotoMetadataResult result = Places.GeoDataApi
-                .getPlacePhotos(mGoogleApiClient, marker.getId()).await();
-// Get a PhotoMetadataBuffer instance containing a list of photos (PhotoMetadata).
-        if (result != null && result.getStatus().isSuccess()) {
-            photoMetadataBuffer = result.getPhotoMetadata();
-        }
-        // Get the first photo in the list.
-        PlacePhotoMetadata photo = photoMetadataBuffer.get(0);
-// Get a full-size bitmap for the photo.
-        Bitmap image = photo.getPhoto(mGoogleApiClient).await()
-                .getBitmap();
-// Get the attribution text.
-        CharSequence attribution = photo.getAttributions();
-        return image;
-    }
+    private String getResponse(String urlString) {
+        BufferedReader reader = null;
+        try {
+            URL url = new URL(urlString);
+            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setRequestMethod("GET");
+            urlConnection.setRequestProperty("User-Agent", "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.4; en-US; rv:1.9.2.2) Gecko/20100316 Firefox/3.6.2");
+            urlConnection.setReadTimeout(5000);
+            urlConnection.connect();
+            reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+            StringBuilder s = new StringBuilder();
+            String line = null;
+            while ((line = reader.readLine()) != null) {
+                s.append(line + "\n");
+            }
+            return s.toString();
 
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
 }

@@ -60,7 +60,7 @@ public class DatabaseAccess {
      *
      * @return a List of quotes
      */
-    public List<String> getQuotes() {
+    public List<String> getAddresses() {
         List<String> list = new ArrayList<>();
         Cursor cursor = database.rawQuery("SELECT address FROM locations", null);
         cursor.moveToFirst();

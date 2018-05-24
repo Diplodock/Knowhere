@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
                         return true;
 
                     case R.id.nav_explore:
+                        exploreFragment.onDetach();
                         displayFragmentExplore();
                         return true;
 
@@ -86,8 +87,12 @@ public class MainActivity extends AppCompatActivity {
         FragmentTransaction ft = getFragmentManager().beginTransaction();
         if (exploreFragment.isAdded()) { // if the fragment is already in container
             ft.show(exploreFragment);
+            ft.detach(exploreFragment);
+            ft.attach(exploreFragment);
         } else { // fragment needs to be added to frame container
             ft.add(R.id.main_frame, exploreFragment, "A");
+            ft.detach(exploreFragment);
+            ft.attach(exploreFragment);
         }
         // Hide fragment B
         if (mapFragment.isAdded()) { ft.hide(mapFragment); }

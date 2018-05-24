@@ -43,7 +43,7 @@
             android:id="@+id/btbdclear"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@color/cast_libraries_material_featurehighlight_outer_highlight_default_color"
+            android:background="@color/colorPrimary"
             android:elevation="0dp"
             android:padding="15dp"
             android:text="CLEAR DATABASE"
