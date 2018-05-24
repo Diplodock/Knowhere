@@ -70,50 +70,50 @@ public class MainActivity extends AppCompatActivity {
 
     protected void displayFragmentMap() {
         FragmentTransaction ft = getFragmentManager().beginTransaction();
-        if (mapFragment.isAdded()) { // if the fragment is already in container
+        if (mapFragment.isAdded()) {
             ft.show(mapFragment);
-        } else { // fragment needs to be added to frame container
+        } else {
             ft.add(R.id.main_frame, mapFragment, "A");
         }
-        // Hide fragment B
+
         if (exploreFragment.isAdded()) { ft.hide(exploreFragment); }
-        // Hide fragment C
+
         if (aboutFragment.isAdded()) { ft.hide(aboutFragment); }
-        // Commit changes
+
         ft.commit();
     }
 
     protected void displayFragmentExplore() {
         FragmentTransaction ft = getFragmentManager().beginTransaction();
-        if (exploreFragment.isAdded()) { // if the fragment is already in container
+        if (exploreFragment.isAdded()) {
             ft.show(exploreFragment);
             ft.detach(exploreFragment);
             ft.attach(exploreFragment);
-        } else { // fragment needs to be added to frame container
+        } else {
             ft.add(R.id.main_frame, exploreFragment, "A");
             ft.detach(exploreFragment);
             ft.attach(exploreFragment);
         }
-        // Hide fragment B
+
         if (mapFragment.isAdded()) { ft.hide(mapFragment); }
-        // Hide fragment C
+
         if (aboutFragment.isAdded()) { ft.hide(aboutFragment); }
-        // Commit changes
+
         ft.commit();
     }
 
     protected void displayFragmentAbout() {
         FragmentTransaction ft = getFragmentManager().beginTransaction();
-        if (aboutFragment.isAdded()) { // if the fragment is already in container
+        if (aboutFragment.isAdded()) {
             ft.show(aboutFragment);
-        } else { // fragment needs to be added to frame container
+        } else {
             ft.add(R.id.main_frame, aboutFragment, "A");
         }
-        // Hide fragment B
+
         if (mapFragment.isAdded()) { ft.hide(mapFragment); }
-        // Hide fragment C
+
         if (exploreFragment.isAdded()) { ft.hide(exploreFragment); }
-        // Commit changes
+
         ft.commit();
     }
 }

@@ -28,7 +28,7 @@ import java.util.List;
 import static com.google.android.gms.wearable.DataMap.TAG;
 
 /**
- * A simple {@link Fragment} subclass.
+ *
  */
 public class ExploreFragment extends Fragment {
 
@@ -36,7 +36,7 @@ public class ExploreFragment extends Fragment {
     private StreetViewPanoramaView mStreetViewPanoramaView;
 
     public ExploreFragment() {
-        // Required empty public constructor
+
     }
 
 

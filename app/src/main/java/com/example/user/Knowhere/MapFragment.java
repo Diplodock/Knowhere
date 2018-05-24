@@ -82,9 +82,6 @@ import java.util.List;
 import java.util.Locale;
 
 
-/**
- * A simple {@link Fragment} subclass.
- */
 public class MapFragment extends Fragment implements LoaderCallbacks<Cursor>, OnConnectionFailedListener {
 
     private MapFragment mapFragment;
@@ -96,7 +93,7 @@ public class MapFragment extends Fragment implements LoaderCallbacks<Cursor>, On
 
 
     public MapFragment() {
-        // Required empty public constructor
+
     }
 
 
@@ -201,7 +198,7 @@ public class MapFragment extends Fragment implements LoaderCallbacks<Cursor>, On
                 getDeviceLocation();
 
 
-                // For dropping a marker at a point on the Map
+
 
                 googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
                     @Override
@@ -244,25 +241,25 @@ public class MapFragment extends Fragment implements LoaderCallbacks<Cursor>, On
                                     @Override
                                     public void run() {
                                         drawMarker(point);
-                                        // Creating an instance of ContentValues
+
                                         ContentValues contentValues = new ContentValues();
 
-                                        // Setting latitude in ContentValues
+
                                         contentValues.put(LocationsDB.FIELD_LAT, point.latitude);
 
-                                        // Setting longitude in ContentValues
+
                                         contentValues.put(LocationsDB.FIELD_LNG, point.longitude);
 
-                                        // Setting zoom in ContentValues
+
                                         contentValues.put(LocationsDB.FIELD_ZOOM, googleMap.getCameraPosition().zoom);
 
-                                        //Setting address in ContentValues
+
                                         contentValues.put(LocationsDB.FIELD_ADDRESS, getFormattedAddress(point));
 
-                                        // Creating an instance of LocationInsertTask
+
                                         LocationInsertTask insertTask = new LocationInsertTask();
 
-                                        // Storing the latitude, longitude and zoom level to SQLite database
+
                                         insertTask.execute(contentValues);
 
                                         Toast.makeText(getActivity().getApplicationContext(), "Marker is added to the Map", Toast.LENGTH_SHORT).show();
@@ -444,16 +441,16 @@ public class MapFragment extends Fragment implements LoaderCallbacks<Cursor>, On
 
 
     private void drawMarker(LatLng point) {
-        // Creating an instance of MarkerOptions
+
         MarkerOptions markerOptions = new MarkerOptions();
 
-        // Setting latitude and longitude for the marker
+
         markerOptions.position(point);
 
         markerOptions.title(getFormattedAddress(point));
         
 
-        // Adding marker on the Google Map
+
         googleMap.addMarker(markerOptions);
 
 
@@ -468,7 +465,7 @@ public class MapFragment extends Fragment implements LoaderCallbacks<Cursor>, On
         @Override
         protected Void doInBackground(ContentValues... contentValues) {
 
-            /** Setting up values to insert the clicked location into SQLite database */
+
             getActivity().getApplicationContext().getContentResolver().insert(LocationsContentProvider.CONTENT_URI, contentValues[0]);
             return null;
         }
@@ -478,7 +475,7 @@ public class MapFragment extends Fragment implements LoaderCallbacks<Cursor>, On
         @Override
         protected Void doInBackground(Void... params) {
 
-            /** Deleting all the locations stored in SQLite database */
+
             getActivity().getApplicationContext().getContentResolver().delete(LocationsContentProvider.CONTENT_URI, null, null);
             return null;
         }
@@ -488,10 +485,10 @@ public class MapFragment extends Fragment implements LoaderCallbacks<Cursor>, On
     public Loader<Cursor> onCreateLoader(int arg0,
                                          Bundle arg1) {
 
-        // Uri to the content provider LocationsContentProvider
+
         Uri uri = LocationsContentProvider.CONTENT_URI;
 
-        // Fetches all the rows from locations table
+
         return new CursorLoader(getActivity().getApplicationContext(), uri, null, null, null, null);
     }
 
@@ -503,38 +500,37 @@ public class MapFragment extends Fragment implements LoaderCallbacks<Cursor>, On
         double lng = 0;
         float zoom = 0;
 
-        // Number of locations available in the SQLite database table
+
         locationCount = arg1.getCount();
 
-        // Move the current record pointer to the first row of the table
         arg1.moveToFirst();
 
         for (int i = 0; i < locationCount; i++) {
 
-            // Get the latitude
+
             lat = arg1.getDouble(arg1.getColumnIndex(LocationsDB.FIELD_LAT));
 
-            // Get the longitude
+
             lng = arg1.getDouble(arg1.getColumnIndex(LocationsDB.FIELD_LNG));
 
-            // Get the zoom level
+
             zoom = arg1.getFloat(arg1.getColumnIndex(LocationsDB.FIELD_ZOOM));
 
-            // Creating an instance of LatLng to plot the location in Google Maps
+
             LatLng location = new LatLng(lat, lng);
 
-            // Drawing the marker in the Google Maps
+
             drawMarker(location);
 
-            // Traverse the pointer to the next row
+
             arg1.moveToNext();
         }
 
         if (locationCount > 0) {
-            // Moving CameraPosition to last clicked position
+
             googleMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(lat, lng)));
 
-            // Setting the zoom level in the map on last position  is clicked
+
             googleMap.animateCamera(CameraUpdateFactory.zoomTo(zoom));
         }
     }
